@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clinic Booking</title>
+    <style>
+      :root {
+        --ink: #102a2e;
+        --muted: #5d7378;
+        --line: #d9e4e6;
+        --teal: #0f766e;
+        --teal-dark: #115e59;
+        --mint: #e6f4f1;
+        --danger: #b42318;
+        --bg: #f4f8f8;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+
+      header {
+        background: var(--teal);
+        color: white;
+        padding: 40px 20px;
+      }
+
+      header .inner,
+      main {
+        width: min(920px, 100% - 32px);
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: clamp(1.7rem, 4vw, 2.4rem);
+      }
+
+      header p {
+        margin: 0;
+        opacity: 0.85;
+      }
+
+      main {
+        display: grid;
+        gap: 18px;
+        padding: 24px 0 56px;
+      }
+
+      .card {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 8px 24px rgb(16 42 46 / 5%);
+      }
+
+      .card h2 {
+        margin: 0 0 14px;
+        font-size: 1.15rem;
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .spread {
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+
+      .spread h2 {
+        margin: 0;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 11px 12px;
+        font: inherit;
+        color: var(--ink);
+        background: #fbfefe;
+      }
+
+      input:focus {
+        outline: 2px solid var(--teal);
+        outline-offset: 1px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 9px;
+        padding: 11px 16px;
+        font: inherit;
+        font-weight: 600;
+        color: white;
+        background: var(--teal);
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: var(--teal-dark);
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .secondary {
+        background: var(--mint);
+        color: var(--teal-dark);
+      }
+
+      .secondary:hover {
+        background: #d5ece7;
+      }
+
+      .key-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+
+      .muted {
+        color: var(--muted);
+        margin: 10px 0 0;
+      }
+
+      .error {
+        color: var(--danger);
+        margin: 10px 0 0;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 12px;
+      }
+
+      .slot {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 15px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .slot h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .slot time {
+        display: block;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .badge {
+        justify-self: start;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: var(--mint);
+        color: var(--teal-dark);
+      }
+
+      .badge.gone {
+        background: #fbe9e7;
+        color: var(--danger);
+      }
+
+      .slot button {
+        width: 100%;
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 12px;
+        max-width: 440px;
+      }
+
+      label {
+        display: grid;
+        gap: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      dl {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 8px 18px;
+        margin: 0;
+      }
+
+      dt {
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+
+      code {
+        background: var(--mint);
+        padding: 2px 6px;
+        border-radius: 5px;
+        font-size: 0.9em;
+      }
+
+      @media (max-width: 520px) {
+        .key-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="inner">
+        <h1>Clinic Booking</h1>
+        <p>Pick a free appointment slot and confirm it in seconds.</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1. Connect</h2>
+        <div class="key-row">
+          <input
+            id="apiKey"
+            type="password"
+            autocomplete="off"
+            placeholder="Paste your API key"
+            aria-label="API key"
+          />
+          <button id="saveKey" type="button">Use key</button>
+        </div>
+        <p id="keyStatus" class="muted">Enter the API key to load slots.</p>
+      </section>
+
+      <section class="card">
+        <div class="row spread">
+          <h2>2. Available slots</h2>
+          <button id="refresh" class="secondary" type="button">Refresh</button>
+        </div>
+        <p id="slotsMessage" class="muted"></p>
+        <div id="slots" class="grid"></div>
+      </section>
+
+      <section class="card" id="bookPanel" hidden>
+        <h2>3. Book <span id="slotName"></span></h2>
+        <form id="bookForm" class="form-grid">
+          <label>
+            Full name
+            <input id="patientName" required autocomplete="name" />
+          </label>
+          <label>
+            Email
+            <input id="patientEmail" type="email" required autocomplete="email" />
+          </label>
+          <p id="bookError" class="error" hidden></p>
+          <button id="bookButton" type="submit">Confirm booking</button>
+        </form>
+      </section>
+
+      <section class="card" id="confirmation" hidden>
+        <h2>Booking confirmed</h2>
+        <dl>
+          <dt>Booking ID</dt>
+          <dd><code id="confirmId"></code></dd>
+          <dt>Slot</dt>
+          <dd id="confirmSlot"></dd>
+          <dt>Name</dt>
+          <dd id="confirmName"></dd>
+          <dt>Email</dt>
+          <dd id="confirmEmail"></dd>
+          <dt>Status</dt>
+          <dd id="confirmStatus"></dd>
+          <dt>Created</dt>
+          <dd id="confirmCreated"></dd>
+        </dl>
+      </section>
+    </main>
+
+    <script>
+      const KEY_STORAGE = "clinic_api_key";
+      let apiKey = localStorage.getItem(KEY_STORAGE) || "";
+      let selectedSlot = null;
+      let idempotencyKey = null;
+
+      const $ = (id) => document.getElementById(id);
+
+      function formatDate(value) {
+        return new Date(value).toLocaleString(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        });
+      }
+
+      function setMessage(text, isError) {
+        const el = $("slotsMessage");
+        el.textContent = text;
+        el.className = isError ? "error" : "muted";
+      }
+
+      function setKeyStatus(text, isError) {
+        const el = $("keyStatus");
+        el.textContent = text;
+        el.className = isError ? "error" : "muted";
+      }
+
+      async function api(path, options = {}) {
+        const headers = {
+          "X-API-Key": apiKey,
+          ...(options.body ? { "Content-Type": "application/json" } : {}),
+          ...(options.headers || {}),
+        };
+        return fetch(path, { ...options, headers });
+      }
+
+      async function loadSlots() {
+        if (!apiKey) {
+          setMessage("Enter your API key above first.", true);
+          return;
+        }
+
+        setMessage("Loading slots…");
+        try {
+          const response = await api("/slots");
+          const data = await response.json();
+
+          if (response.status === 401) {
+            setMessage("That API key was rejected. Check it and try again.", true);
+            setKeyStatus("Key rejected.", true);
+            return;
+          }
+          if (!response.ok) {
+            throw new Error(data.error || "Could not load slots");
+          }
+
+          setKeyStatus("Connected.");
+          setMessage(
+            data.slots.length ? "" : "No slots have been added yet."
+          );
+          renderSlots(data.slots);
+        } catch (error) {
+          setMessage(error.message || "Could not load slots.", true);
+        }
+      }
+
+      function renderSlots(slots) {
+        const list = $("slots");
+        list.replaceChildren();
+
+        for (const slot of slots) {
+          const card = document.createElement("article");
+          card.className = "slot";
+
+          const title = document.createElement("h3");
+          title.textContent = slot.provider;
+
+          const when = document.createElement("time");
+          when.dateTime = slot.start;
+          when.textContent = `${formatDate(slot.start)} – ${formatDate(slot.end)}`;
+
+          const badge = document.createElement("span");
+          const started = new Date(slot.start).getTime() <= Date.now();
+          const open = slot.available && !started;
+          badge.className = open ? "badge" : "badge gone";
+          badge.textContent = started ? "Started" : slot.available ? "Available" : "Booked";
+
+          card.append(title, when, badge);
+
+          if (open) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.textContent = "Book this slot";
+            button.addEventListener("click", () => chooseSlot(slot));
+            card.append(button);
+          }
+
+          list.append(card);
+        }
+      }
+
+      function chooseSlot(slot) {
+        selectedSlot = slot;
+        idempotencyKey =
+          typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : String(Date.now()) + Math.random().toString(16).slice(2);
+
+        $("slotName").textContent = `${slot.provider}, ${formatDate(slot.start)}`;
+        $("bookPanel").hidden = false;
+        $("confirmation").hidden = true;
+        $("bookError").hidden = true;
+        $("patientName").focus();
+        $("bookPanel").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      function showConfirmation(booking) {
+        $("confirmId").textContent = booking.id;
+        $("confirmSlot").textContent = selectedSlot
+          ? `${selectedSlot.provider}, ${formatDate(selectedSlot.start)}`
+          : booking.slot_id;
+        $("confirmName").textContent = booking.name;
+        $("confirmEmail").textContent = booking.email;
+        $("confirmStatus").textContent = booking.status;
+        $("confirmCreated").textContent = formatDate(booking.created_at);
+        $("confirmation").hidden = false;
+        $("bookPanel").hidden = true;
+        $("confirmation").scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      $("saveKey").addEventListener("click", () => {
+        apiKey = $("apiKey").value.trim();
+        if (!apiKey) {
+          setKeyStatus("Enter an API key.", true);
+          return;
+        }
+        localStorage.setItem(KEY_STORAGE, apiKey);
+        setKeyStatus("Key saved.");
+        loadSlots();
+      });
+
+      $("refresh").addEventListener("click", loadSlots);
+
+      $("bookForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!selectedSlot) return;
+
+        const button = $("bookButton");
+        const errorBox = $("bookError");
+        button.disabled = true;
+        button.textContent = "Booking…";
+        errorBox.hidden = true;
+
+        try {
+          const response = await api("/bookings", {
+            method: "POST",
+            headers: { "Idempotency-Key": idempotencyKey },
+            body: JSON.stringify({
+              slot_id: selectedSlot.id,
+              name: $("patientName").value,
+              email: $("patientEmail").value,
+            }),
+          });
+          const data = await response.json();
+
+          if (response.status === 401) {
+            throw new Error("Your API key was rejected. Enter it again.");
+          }
+          if (!response.ok) {
+            throw new Error(data.error || "Could not book this slot.");
+          }
+
+          showConfirmation(data);
+          idempotencyKey = null;
+          loadSlots();
+        } catch (error) {
+          errorBox.textContent = error.message || "Could not book this slot.";
+          errorBox.hidden = false;
+        } finally {
+          button.disabled = false;
+          button.textContent = "Confirm booking";
+        }
+      });
+
+      if (apiKey) {
+        $("apiKey").value = apiKey;
+        setKeyStatus("Key loaded from this browser.");
+        loadSlots();
+      }
+    </script>
+  </body>
+</html>
